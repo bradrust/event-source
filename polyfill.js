@@ -130,6 +130,8 @@
   var MINIMUM_DURATION = 1000;
   var MAXIMUM_DURATION = 18000000;
 
+  console.log("HEADERS1");
+
   function getDuration(value, def) {
     var n = Number(value) || def;
     return (n < MINIMUM_DURATION ? MINIMUM_DURATION : (n > MAXIMUM_DURATION ? MAXIMUM_DURATION : n));
@@ -152,6 +154,10 @@
     var initialRetry = getDuration(options ? options.retry : NaN, 1000);
     var heartbeatTimeout = getDuration(options ? options.heartbeatTimeout : NaN, 45000);
     var lastEventId = (options && options.lastEventId && String(options.lastEventId)) || "";
+    var headers = (options && options.headers && Object(options.headers)) || {};
+
+    console.log("HEADERS = " + headers);
+
     var that = this;
     var retry = initialRetry;
     var wasActivity = false;
@@ -430,6 +436,15 @@
         xhr.setRequestHeader("Accept", "text/event-stream");
         // Request header field Last-Event-ID is not allowed by Access-Control-Allow-Headers.
         //xhr.setRequestHeader("Last-Event-ID", lastEventId);
+
+        // Add the headers to the transport.
+        if (Object.getOwnPropertyNames(headers).length !== 0) {
+          var headerKeys = Object.keys(headers);
+          for (var i = 0; i < headerKeys.length; i++) {
+            xhr.setRequestHeader(headerKeys[i], headers[headerKeys[i]]);
+          }
+        }
+
       }
 
       xhr.send(null);
@@ -457,6 +472,8 @@
 
   EventSource.prototype = new F();
   F.call(EventSource);
+
+  console.log("HEADERS2");
 
   module.exports = EventSource;
 }(require('es5-ext/global')));
